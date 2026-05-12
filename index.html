@@ -266,25 +266,42 @@
     }
 
     async function addProduct() {
-      const input =
-        document.getElementById("urlInput");
 
-      const url = input.value.trim();
+  const title =
+    document.getElementById("titleInput")
+    .value
+    .trim();
 
-      if (!url) return;
+  const image =
+    document.getElementById("imageInput")
+    .value
+    .trim();
 
-      input.value = "";
+  const url =
+    document.getElementById("urlInput")
+    .value
+    .trim();
 
-      await fetch(`${API_URL}/add`, {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify({ url })
-      });
+  if (!title || !url) return;
 
-      loadProducts();
-    }
+  await fetch(`${API_URL}/add`, {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      title,
+      image,
+      url
+    })
+  });
+
+  document.getElementById("titleInput").value = "";
+  document.getElementById("imageInput").value = "";
+  document.getElementById("urlInput").value = "";
+
+  loadProducts();
+}
 
     async function toggleFavorite(id) {
       await fetch(
