@@ -1,54 +1,379 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wishlist</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ali Wishlist</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      font-family:'Inter',sans-serif;
+      background:#0b0b0f;
+      color:white;
+      min-height:100vh;
+      padding:40px;
+      background-image:
+      radial-gradient(circle at top left,#6d28d922,transparent 25%),
+      radial-gradient(circle at bottom right,#2563eb22,transparent 25%);
+    }
+
+    h1{
+      font-size:42px;
+      margin-bottom:10px;
+      font-weight:700;
+      background:linear-gradient(90deg,#8b5cf6,#3b82f6);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+
+    .subtitle{
+      color:#9ca3af;
+      margin-bottom:35px;
+    }
+
+    .top-bar{
+      display:flex;
+      gap:15px;
+      margin-bottom:35px;
+      flex-wrap:wrap;
+    }
+
+    input{
+      flex:1;
+      min-width:280px;
+      background:#111827;
+      border:1px solid #1f2937;
+      color:white;
+      padding:16px;
+      border-radius:16px;
+      outline:none;
+      font-size:15px;
+      transition:.2s;
+    }
+
+    input:focus{
+      border-color:#8b5cf6;
+      box-shadow:0 0 0 4px #8b5cf633;
+    }
+
+    button{
+      border:none;
+      background:linear-gradient(90deg,#8b5cf6,#3b82f6);
+      color:white;
+      padding:16px 22px;
+      border-radius:16px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:15px;
+      transition:.2s;
+    }
+
+    button:hover{
+      transform:translateY(-2px);
+      opacity:.95;
+    }
+
+    .categories{
+      display:flex;
+      gap:12px;
+      margin-bottom:30px;
+      flex-wrap:wrap;
+    }
+
+    .category{
+      background:#111827;
+      border:1px solid #1f2937;
+      padding:10px 16px;
+      border-radius:999px;
+      cursor:pointer;
+      transition:.2s;
+      font-size:14px;
+      color:#d1d5db;
+    }
+
+    .category.active{
+      background:#8b5cf6;
+      border-color:#8b5cf6;
+      color:white;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+      gap:22px;
+    }
+
+    .card{
+      background:#111827;
+      border:1px solid #1f2937;
+      border-radius:24px;
+      overflow:hidden;
+      transition:.25s;
+      position:relative;
+      cursor:grab;
+    }
+
+    .card:hover{
+      transform:translateY(-5px);
+      border-color:#374151;
+    }
+
+    .card img{
+      width:100%;
+      height:220px;
+      object-fit:cover;
+      background:#0f172a;
+    }
+
+    .content{
+      padding:18px;
+    }
+
+    .title{
+      font-size:15px;
+      line-height:1.4;
+      color:#f3f4f6;
+      margin-bottom:14px;
+      height:64px;
+      overflow:hidden;
+    }
+
+    .bottom{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .tag{
+      background:#1f2937;
+      color:#9ca3af;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+    }
+
+    .favorite{
+      font-size:22px;
+      cursor:pointer;
+      user-select:none;
+      transition:.2s;
+    }
+
+    .favorite:hover{
+      transform:scale(1.15);
+    }
+
+    .empty{
+      margin-top:60px;
+      text-align:center;
+      color:#6b7280;
+    }
+
+    a{
+      text-decoration:none;
+    }
+
+    @media(max-width:700px){
+      body{
+        padding:20px;
+      }
+
+      h1{
+        font-size:32px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
+  <h1>Ali Wishlist</h1>
+  <p class="subtitle">
+    Sua coleção aesthetic de comprinhas ✨
+  </p>
 
-  <div class="hero">
-    <h1>Minha Wishlist</h1>
-    <p>Minhas futuras comprinhas ✨</p>
-  </div>
-
-  <div class="topbar">
-
-    <input id="search" placeholder="Pesquisar produto...">
-
-    <button onclick="openModal()">
-      + Adicionar
-    </button>
-
-  </div>
-
-  <div id="products" class="grid"></div>
-
-</div>
-
-<div class="modal" id="modal">
-
-  <div class="modal-box">
-
-    <h2>Novo Produto</h2>
-
-    <input id="linkInput" placeholder="Cole o link do AliExpress">
+  <div class="top-bar">
+    <input
+      type="text"
+      id="urlInput"
+      placeholder="Cole um link do AliExpress..."
+    />
 
     <button onclick="addProduct()">
-      Salvar
+      Adicionar
     </button>
-
   </div>
 
-</div>
+  <div class="categories" id="categories"></div>
 
-<script src="app.js"></script>
+  <div class="grid" id="grid"></div>
+
+  <div class="empty" id="empty">
+    Nenhum produto ainda.
+  </div>
+
+  <script>
+    const API_URL =
+      "https://ali-backend-9ez3.onrender.com";
+
+    const grid =
+      document.getElementById("grid");
+
+    const empty =
+      document.getElementById("empty");
+
+    const categoriesContainer =
+      document.getElementById("categories");
+
+    let products = [];
+    let currentCategory = "Todos";
+
+    async function loadProducts() {
+      const response =
+        await fetch(`${API_URL}/products`);
+
+      products = await response.json();
+
+      renderCategories();
+      renderProducts();
+    }
+
+    async function addProduct() {
+      const input =
+        document.getElementById("urlInput");
+
+      const url = input.value.trim();
+
+      if (!url) return;
+
+      input.value = "";
+
+      await fetch(`${API_URL}/add`, {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({ url })
+      });
+
+      loadProducts();
+    }
+
+    async function toggleFavorite(id) {
+      await fetch(
+        `${API_URL}/favorite/${id}`,
+        {
+          method:"PUT"
+        }
+      );
+
+      loadProducts();
+    }
+
+    function renderCategories() {
+      const categories =
+        ["Todos", ...new Set(
+          products.map(p => p.category)
+        )];
+
+      categoriesContainer.innerHTML = "";
+
+      categories.forEach(cat => {
+        const div =
+          document.createElement("div");
+
+        div.className =
+          "category" +
+          (currentCategory === cat
+            ? " active"
+            : "");
+
+        div.innerText = cat;
+
+        div.onclick = () => {
+          currentCategory = cat;
+          renderCategories();
+          renderProducts();
+        };
+
+        categoriesContainer.appendChild(div);
+      });
+    }
+
+    function renderProducts() {
+      grid.innerHTML = "";
+
+      let filtered = products;
+
+      if (currentCategory !== "Todos") {
+        filtered = products.filter(
+          p => p.category === currentCategory
+        );
+      }
+
+      filtered.sort((a,b) =>
+        b.favorite - a.favorite
+      );
+
+      empty.style.display =
+        filtered.length
+          ? "none"
+          : "block";
+
+      filtered.forEach(product => {
+
+        const card =
+          document.createElement("div");
+
+        card.className = "card";
+
+        card.draggable = true;
+
+        card.innerHTML = `
+          <a href="${product.url}"
+             target="_blank">
+
+            <img src="${product.image}" />
+
+            <div class="content">
+
+              <div class="title">
+                ${product.title}
+              </div>
+
+              <div class="bottom">
+
+                <div class="tag">
+                  ${product.category}
+                </div>
+
+                <div
+                  class="favorite"
+                  onclick="event.preventDefault(); toggleFavorite(${product.id})"
+                >
+                  ${product.favorite ? "⭐" : "☆"}
+                </div>
+
+              </div>
+
+            </div>
+          </a>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    loadProducts();
+  </script>
 
 </body>
 </html>
