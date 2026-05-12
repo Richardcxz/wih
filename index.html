@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wishlist</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="hero">
+    <h1>Minha Wishlist</h1>
+    <p>Minhas futuras comprinhas ✨</p>
+  </div>
+
+  <div class="topbar">
+
+    <input id="search" placeholder="Pesquisar produto...">
+
+    <button onclick="openModal()">
+      + Adicionar
+    </button>
+
+  </div>
+
+  <div id="products" class="grid"></div>
+
+</div>
+
+<div class="modal" id="modal">
+
+  <div class="modal-box">
+
+    <h2>Novo Produto</h2>
+
+    <input id="linkInput" placeholder="Cole o link do AliExpress">
+
+    <button onclick="addProduct()">
+      Salvar
+    </button>
+
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
