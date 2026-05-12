@@ -1,4 +1,4 @@
-const API = 'http://localhost:3000';
+const API = 'https://ali-backend-9ez3.onrender.com';
             ${product.category}
           </div>
 
