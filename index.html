@@ -47,9 +47,9 @@
       flex-wrap:wrap;
     }
 
-    input{
+    input, select{
       flex:1;
-      min-width:280px;
+      min-width:220px;
       background:#111827;
       border:1px solid #1f2937;
       color:white;
@@ -60,7 +60,8 @@
       transition:.2s;
     }
 
-    input:focus{
+    input:focus,
+    select:focus{
       border-color:#8b5cf6;
       box-shadow:0 0 0 4px #8b5cf633;
     }
@@ -151,6 +152,8 @@
       display:flex;
       justify-content:space-between;
       align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
     }
 
     .tag{
@@ -161,14 +164,24 @@
       font-size:12px;
     }
 
-    .favorite{
-      font-size:22px;
+    .actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    .favorite,
+    .edit,
+    .delete{
+      font-size:20px;
       cursor:pointer;
       user-select:none;
       transition:.2s;
     }
 
-    .favorite:hover{
+    .favorite:hover,
+    .edit:hover,
+    .delete:hover{
       transform:scale(1.15);
     }
 
@@ -182,7 +195,48 @@
       text-decoration:none;
     }
 
+    .modal{
+      position:fixed;
+      inset:0;
+      background:#000000bb;
+      display:none;
+      justify-content:center;
+      align-items:center;
+      z-index:999;
+      padding:20px;
+    }
+
+    .modal-box{
+      width:100%;
+      max-width:500px;
+      background:#111827;
+      border:1px solid #1f2937;
+      border-radius:24px;
+      padding:25px;
+    }
+
+    .modal-box h2{
+      margin-bottom:20px;
+    }
+
+    .modal-box .inputs{
+      display:flex;
+      flex-direction:column;
+      gap:15px;
+    }
+
+    .modal-actions{
+      display:flex;
+      gap:12px;
+      margin-top:20px;
+    }
+
+    .secondary{
+      background:#1f2937;
+    }
+
     @media(max-width:700px){
+
       body{
         padding:20px;
       }
@@ -190,42 +244,52 @@
       h1{
         font-size:32px;
       }
+
+      .top-bar{
+        flex-direction:column;
+      }
+
+      input,
+      select,
+      button{
+        width:100%;
+      }
+
     }
   </style>
 </head>
 <body>
 
   <h1>Ali Wishlist</h1>
+
   <p class="subtitle">
-    Organizando a lista Aliexpress
+    Organizando minha wishlist do AliExpress
   </p>
 
   <div class="top-bar">
 
-  <input
-    type="text"
-    id="titleInput"
-    placeholder="Título do produto"
-  />
+    <input
+      type="text"
+      id="titleInput"
+      placeholder="Título do produto"
+    />
 
-  <input
-    type="text"
-    id="imageInput"
-    placeholder="URL da imagem"
-  />
+    <input
+      type="text"
+      id="imageInput"
+      placeholder="URL da imagem"
+    />
 
-  <input
-    type="text"
-    id="urlInput"
-    placeholder="Link do produto"
-  />
+    <input
+      type="text"
+      id="urlInput"
+      placeholder="Link do produto"
+    />
 
-  <button onclick="addProduct()">
-    Adicionar
-  </button>
+    <button onclick="addProduct()">
+      Adicionar
+    </button>
 
-</div>
-  
   </div>
 
   <div class="categories" id="categories"></div>
@@ -236,7 +300,51 @@
     Nenhum produto ainda.
   </div>
 
+  <div class="modal" id="editModal">
+
+    <div class="modal-box">
+
+      <h2>Editar Produto</h2>
+
+      <div class="inputs">
+
+        <input type="text" id="editTitle" placeholder="Título">
+
+        <input type="text" id="editImage" placeholder="Imagem">
+
+        <input type="text" id="editUrl" placeholder="Link">
+
+        <select id="editCategory">
+          <option>Setup</option>
+          <option>Roupas</option>
+          <option>Anime</option>
+          <option>Carro</option>
+          <option>Outros</option>
+        </select>
+
+      </div>
+
+      <div class="modal-actions">
+
+        <button onclick="saveEdit()">
+          Salvar
+        </button>
+
+        <button
+          class="secondary"
+          onclick="closeModal()"
+        >
+          Cancelar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
   <script>
+
     const API_URL =
       "https://ali-backend-9ez3.onrender.com";
 
@@ -249,10 +357,15 @@
     const categoriesContainer =
       document.getElementById("categories");
 
+    const editModal =
+      document.getElementById("editModal");
+
     let products = [];
     let currentCategory = "Todos";
+    let editingId = null;
 
     async function loadProducts() {
+
       const response =
         await fetch(`${API_URL}/products`);
 
@@ -260,47 +373,53 @@
 
       renderCategories();
       renderProducts();
+
     }
 
     async function addProduct() {
 
-  const title =
-    document.getElementById("titleInput")
-    .value
-    .trim();
+      const title =
+        document.getElementById("titleInput")
+        .value
+        .trim();
 
-  const image =
-    document.getElementById("imageInput")
-    .value
-    .trim();
+      const image =
+        document.getElementById("imageInput")
+        .value
+        .trim();
 
-  const url =
-    document.getElementById("urlInput")
-    .value
-    .trim();
+      const url =
+        document.getElementById("urlInput")
+        .value
+        .trim();
 
-  if (!title || !url) return;
+      if (!title || !url) {
+        alert("Preencha título e link");
+        return;
+      }
 
-  await fetch(`${API_URL}/add`, {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({
-      title,
-      image,
-      url
-    })
-  });
+      await fetch(`${API_URL}/add`, {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          title,
+          image,
+          url
+        })
+      });
 
-  document.getElementById("titleInput").value = "";
-  document.getElementById("imageInput").value = "";
-  document.getElementById("urlInput").value = "";
+      document.getElementById("titleInput").value = "";
+      document.getElementById("imageInput").value = "";
+      document.getElementById("urlInput").value = "";
 
-  loadProducts();
-}
+      loadProducts();
+
+    }
 
     async function toggleFavorite(id) {
+
       await fetch(
         `${API_URL}/favorite/${id}`,
         {
@@ -309,9 +428,91 @@
       );
 
       loadProducts();
+
+    }
+
+    async function deleteProduct(id) {
+
+      const confirmDelete =
+        confirm("Deseja deletar este produto?");
+
+      if (!confirmDelete) return;
+
+      await fetch(
+        `${API_URL}/delete/${id}`,
+        {
+          method:"DELETE"
+        }
+      );
+
+      loadProducts();
+
+    }
+
+    function openEdit(product) {
+
+      editingId = product.id;
+
+      document.getElementById("editTitle").value =
+        product.title;
+
+      document.getElementById("editImage").value =
+        product.image;
+
+      document.getElementById("editUrl").value =
+        product.url;
+
+      document.getElementById("editCategory").value =
+        product.category;
+
+      editModal.style.display = "flex";
+
+    }
+
+    function closeModal() {
+
+      editModal.style.display = "none";
+
+    }
+
+    async function saveEdit() {
+
+      const title =
+        document.getElementById("editTitle").value;
+
+      const image =
+        document.getElementById("editImage").value;
+
+      const url =
+        document.getElementById("editUrl").value;
+
+      const category =
+        document.getElementById("editCategory").value;
+
+      await fetch(
+        `${API_URL}/edit/${editingId}`,
+        {
+          method:"PUT",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify({
+            title,
+            image,
+            url,
+            category
+          })
+        }
+      );
+
+      closeModal();
+
+      loadProducts();
+
     }
 
     function renderCategories() {
+
       const categories =
         ["Todos", ...new Set(
           products.map(p => p.category)
@@ -320,6 +521,7 @@
       categoriesContainer.innerHTML = "";
 
       categories.forEach(cat => {
+
         const div =
           document.createElement("div");
 
@@ -332,24 +534,32 @@
         div.innerText = cat;
 
         div.onclick = () => {
+
           currentCategory = cat;
+
           renderCategories();
           renderProducts();
+
         };
 
         categoriesContainer.appendChild(div);
+
       });
+
     }
 
     function renderProducts() {
+
       grid.innerHTML = "";
 
       let filtered = products;
 
       if (currentCategory !== "Todos") {
+
         filtered = products.filter(
           p => p.category === currentCategory
         );
+
       }
 
       filtered.sort((a,b) =>
@@ -371,10 +581,13 @@
         card.draggable = true;
 
         card.innerHTML = `
+
           <a href="${product.url}"
              target="_blank">
 
-            <img src="${product.image}" />
+            <img
+              src="${product.image || 'https://placehold.co/600x400/111827/ffffff?text=Sem+Imagem'}"
+            />
 
             <div class="content">
 
@@ -388,24 +601,47 @@
                   ${product.category}
                 </div>
 
-                <div
-                  class="favorite"
-                  onclick="event.preventDefault(); toggleFavorite(${product.id})"
-                >
-                  ${product.favorite ? "⭐" : "☆"}
+                <div class="actions">
+
+                  <div
+                    class="favorite"
+                    onclick="event.preventDefault(); toggleFavorite(${product.id})"
+                  >
+                    ${product.favorite ? "⭐" : "☆"}
+                  </div>
+
+                  <div
+                    class="edit"
+                    onclick='event.preventDefault(); openEdit(${JSON.stringify(product)})'
+                  >
+                    ✏️
+                  </div>
+
+                  <div
+                    class="delete"
+                    onclick="event.preventDefault(); deleteProduct(${product.id})"
+                  >
+                    🗑️
+                  </div>
+
                 </div>
 
               </div>
 
             </div>
+
           </a>
+
         `;
 
         grid.appendChild(card);
+
       });
+
     }
 
     loadProducts();
+
   </script>
 
 </body>
